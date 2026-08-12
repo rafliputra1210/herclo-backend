@@ -10,17 +10,40 @@ use Illuminate\Support\Str;
 class ProductController extends Controller
 {
     // MENGAMBIL SEMUA PRODUK (Untuk Halaman Publik)
-    public function index()
+    public function index(Request $request)
     {
-        // Eager loading tabel relasi 'category' agar performa cepat
-        $products = Product::with('category')->get();
+        // Memulai query ke tabel Product beserta relasi kategorinya
+        $query = \App\Models\Product::with('category');
+
+        // 1. Fitur Pencarian Nama
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // 2. Fitur Filter Kategori
+        if ($request->has('category_id') && $request->category_id != '') {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // 3. Fitur Filter/Pengurutan Harga
+        if ($request->has('sort')) {
+            if ($request->sort === 'price_asc') {
+                $query->orderBy('price', 'asc'); // Harga Termurah
+            } elseif ($request->sort === 'price_desc') {
+                $query->orderBy('price', 'desc'); // Harga Termahal
+            }
+        } else {
+            // Default: Produk terbaru
+            $query->latest();
+        }
+
+        $products = $query->get();
 
         return response()->json([
-            'message' => 'Daftar Produk berhasil diambil',
+            'message' => 'Data produk berhasil diambil',
             'data' => $products
         ]);
     }
-
     // MENGAMBIL DETAIL 1 PRODUK
     public function show($slug)
     {
@@ -33,55 +56,72 @@ class ProductController extends Controller
     }
 
     // MENAMBAH PRODUK BARU (Hanya untuk Admin)
+    // --- Fungsi Tambah Produk (Store) ---
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'stock_quantity' => 'required|integer',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072', // Maksimal 3MB
         ]);
 
-        $product = Product::create([
-            'category_id' => $request->category_id,
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $imagePath = '/storage/' . $path;
+        }
+
+        $product = \App\Models\Product::create([
             'name' => $request->name,
-            'slug' => Str::slug($request->name), // Otomatis membuat URL yang SEO-friendly
-            'description' => $request->description,
+            'slug' => Str::slug($request->name),
+            'description' => $request->description ?? 'Deskripsi standar produk HERCLO.',
+            'category_id' => $request->category_id,
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
+            'image_path' => $imagePath,
         ]);
 
-        return response()->json([
-            'message' => 'Produk berhasil ditambahkan',
-            'data' => $product
-        ], 201);
+        return response()->json(['message' => 'Produk berhasil ditambahkan', 'data' => $product], 201);
     }
+
+    // --- Fungsi Update Produk ---
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
-        
+        $product = \App\Models\Product::findOrFail($id);
+
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'stock_quantity' => 'required|integer',
+            'category_id' => 'required|exists:categories,id',
+            'price' => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
         ]);
+
+        $imagePath = $product->image_path; // Simpan path lama sebagai default
+
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($imagePath && \Illuminate\Support\Facades\Storage::disk('public')->exists(str_replace('/storage/', '', $imagePath))) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('/storage/', '', $imagePath));
+            }
+            // Upload gambar baru
+            $path = $request->file('image')->store('products', 'public');
+            $imagePath = '/storage/' . $path;
+        }
 
         $product->update([
-            'category_id' => $request->category_id,
             'name' => $request->name,
-            'slug' => Str::slug($request->name), // Jangan lupa pastikan 'use Illuminate\Support\Str;' ada di atas
-            'description' => $request->description,
+            'slug' => Str::slug($request->name),
+            'description' => $request->description ?? $product->description ?? 'Deskripsi standar produk HERCLO.',
+            'category_id' => $request->category_id,
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
+            'image_path' => $imagePath,
         ]);
 
-        return response()->json([
-            'message' => 'Produk berhasil diperbarui',
-            'data' => $product
-        ]);
+        return response()->json(['message' => 'Produk berhasil diperbarui', 'data' => $product]);
     }
 
     // MENGHAPUS PRODUK (DELETE)

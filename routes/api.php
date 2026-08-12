@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BannerController;
+use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\OrderController;
@@ -27,6 +28,7 @@ Route::get('/banners', [BannerController::class, 'index']); // <-- Tambahkan ini
 Route::get('/galleries', [GalleryController::class, 'index']);
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
+Route::post('/checkout', [OrderController::class, 'store']);
 
 // ============================================================
 // RUTE PROTEKSI (Harus login dengan Token Sanctum)
@@ -56,6 +58,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/banners', [BannerController::class, 'store']);
     Route::put('/admin/banners/{id}/status', [BannerController::class, 'updateStatus']);
     Route::delete('/admin/banners/{id}', [BannerController::class, 'destroy']);
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+    Route::get('/my-orders', [OrderController::class, 'myOrders']);
 
     // Cek profil user yang sedang login
     Route::get('/user', function (Request $request) {
