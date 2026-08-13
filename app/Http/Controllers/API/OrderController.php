@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -162,5 +164,14 @@ class OrderController extends Controller
         }
         
         return response()->json(['message' => 'Akses ditolak. Signature tidak valid.'], 403);
+    }
+    public function myOrders(Request $request)
+    {
+        $orders = \App\Models\Order::with(['items.product'])
+                    ->where('user_id', $request->user()->id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                    
+        return response()->json(['data' => $orders]);
     }
 }
