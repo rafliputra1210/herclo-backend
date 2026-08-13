@@ -73,4 +73,17 @@ class ArticleController extends Controller
 
         return response()->json(['message' => 'Artikel berhasil dihapus']);
     }
+    public function showBySlug($slug)
+    {
+        $article = \App\Models\Article::where('slug', $slug)->first();
+
+        if (!$article) {
+            return response()->json(['message' => 'Artikel tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Detail artikel berhasil diambil',
+            'data' => $article
+        ]);
+    }
 }

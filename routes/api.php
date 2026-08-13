@@ -29,6 +29,9 @@ Route::get('/galleries', [GalleryController::class, 'index']);
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
 Route::post('/checkout', [OrderController::class, 'store']);
+Route::get('/settings', [\App\Http\Controllers\API\SettingController::class, 'index']);
+Route::get('/articles/{slug}', [\App\Http\Controllers\API\ArticleController::class, 'showBySlug']);
+Route::post('/midtrans-callback', [\App\Http\Controllers\API\OrderController::class, 'callback']);
 
 // ============================================================
 // RUTE PROTEKSI (Harus login dengan Token Sanctum)
@@ -62,7 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart', [CartController::class, 'store']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
-
+    Route::post('/admin/settings', [\App\Http\Controllers\API\SettingController::class, 'update']);
+  
     // Cek profil user yang sedang login
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());
