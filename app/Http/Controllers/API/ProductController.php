@@ -60,12 +60,13 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072', // Maksimal 3MB
-        ]);
+        'name' => 'required|string|max:255',
+        'category_id' => 'required|exists:categories,id',
+        'price' => 'required|numeric',
+        'stock_quantity' => 'required|integer',
+        'description' => 'nullable|string', // <-- Tambahkan baris ini
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+    ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -96,6 +97,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
+            'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
         ]);
 
