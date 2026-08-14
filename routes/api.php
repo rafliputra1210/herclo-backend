@@ -33,7 +33,7 @@ Route::get('/settings', [\App\Http\Controllers\API\SettingController::class, 'in
 Route::get('/articles/{slug}', [\App\Http\Controllers\API\ArticleController::class, 'showBySlug']);
 Route::post('/midtrans-callback', [\App\Http\Controllers\API\OrderController::class, 'callback']);
 Route::get('/my-orders', [\App\Http\Controllers\API\OrderController::class, 'myOrders']);
-
+Route::post('/promo/validate', [\App\Http\Controllers\API\PromoController::class, 'validatePromo']);
 // ============================================================
 // RUTE PROTEKSI (Harus login dengan Token Sanctum)
 // ============================================================
@@ -68,6 +68,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::post('/admin/settings', [\App\Http\Controllers\API\SettingController::class, 'update']);
     Route::get('/admin/customers', [\App\Http\Controllers\API\CustomerController::class, 'index']);
+    Route::get('/admin/promos', [\App\Http\Controllers\API\PromoController::class, 'index']);
+    Route::post('/admin/promos', [\App\Http\Controllers\API\PromoController::class, 'store']);
+    Route::delete('/admin/promos/{id}', [\App\Http\Controllers\API\PromoController::class, 'destroy']);
   
     // Cek profil user yang sedang login
     Route::get('/user', function (Request $request) {
