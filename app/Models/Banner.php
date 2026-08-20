@@ -11,5 +11,6 @@ class Banner extends Model
         'image_path',
         'link_url',
         'is_active',
+        'type', // 'hero' (Banner Utama Atas) atau 'sub' (Sub Banner 1280x420)
     ];
 }
