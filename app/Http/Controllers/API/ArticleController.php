@@ -47,8 +47,9 @@ class ArticleController extends Controller
         $article = Article::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'   => 'required|string|max:255',
             'content' => 'required|string',
+            'image'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
         ]);
 
         $baseSlug = Str::slug($request->title);
@@ -59,11 +60,29 @@ class ArticleController extends Controller
             $count++;
         }
 
-        $article->update([
-            'title' => $request->title,
-            'slug' => $slug,
+        $data = [
+            'title'   => $request->title,
+            'slug'    => $slug,
             'content' => $request->content,
-        ]);
+        ];
+
+        // Proses Upload Gambar Baru (jika ada)
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($article->image_path) {
+                $oldPath = public_path($article->image_path);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+
+            $image     = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/articles'), $imageName);
+            $data['image_path'] = '/uploads/articles/' . $imageName;
+        }
+
+        $article->update($data);
 
         return response()->json(['message' => 'Artikel berhasil diperbarui', 'data' => $article]);
     }
