@@ -19,25 +19,27 @@ class ArticleController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'content' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072', // Maksimal 3MB
         ]);
 
-        $baseSlug = Str::slug($request->title);
-        $slug = $baseSlug;
-        $count = 1;
-        while (Article::where('slug', $slug)->exists()) {
-            $slug = "{$baseSlug}-{$count}";
-            $count++;
+        $data = [
+            'title' => $request->title,
+            'slug' => \Illuminate\Support\Str::slug($request->title),
+            'content' => $request->content,
+        ];
+
+        // Proses Upload Gambar
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/articles'), $imageName);
+            $data['image_path'] = '/uploads/articles/' . $imageName;
         }
 
-        $article = Article::create([
-            'title' => $request->title,
-            'slug' => $slug,
-            'content' => $request->content,
-            'is_published' => true,
-        ]);
+        \App\Models\Article::create($data);
 
-        return response()->json(['message' => 'Artikel berhasil dibuat', 'data' => $article], 201);
+        return response()->json(['message' => 'Artikel berhasil dibuat']);
     }
 
     public function update(Request $request, $id)
@@ -73,9 +75,9 @@ class ArticleController extends Controller
 
         return response()->json(['message' => 'Artikel berhasil dihapus']);
     }
-    public function showBySlug($slug)
+    public function show($idOrSlug)
     {
-        $article = \App\Models\Article::where('slug', $slug)->first();
+        $article = Article::where('slug', $idOrSlug)->orWhere('id', $idOrSlug)->first();
 
         if (!$article) {
             return response()->json(['message' => 'Artikel tidak ditemukan'], 404);
@@ -85,5 +87,10 @@ class ArticleController extends Controller
             'message' => 'Detail artikel berhasil diambil',
             'data' => $article
         ]);
+    }
+
+    public function showBySlug($slug)
+    {
+        return $this->show($slug);
     }
 }

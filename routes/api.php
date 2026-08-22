@@ -30,10 +30,11 @@ Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
 Route::post('/checkout', [OrderController::class, 'store']);
 Route::get('/settings', [\App\Http\Controllers\API\SettingController::class, 'index']);
-Route::get('/articles/{slug}', [\App\Http\Controllers\API\ArticleController::class, 'showBySlug']);
 Route::post('/midtrans-callback', [\App\Http\Controllers\API\OrderController::class, 'callback']);
 Route::get('/my-orders', [\App\Http\Controllers\API\OrderController::class, 'myOrders']);
 Route::post('/promo/validate', [\App\Http\Controllers\API\PromoController::class, 'validatePromo']);
+Route::get('/articles', [\App\Http\Controllers\API\ArticleController::class, 'index']);
+Route::get('/articles/{slug}', [\App\Http\Controllers\API\ArticleController::class, 'show']);
 // ============================================================
 // RUTE PROTEKSI (Harus login dengan Token Sanctum)
 // ============================================================
