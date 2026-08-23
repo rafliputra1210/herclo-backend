@@ -37,12 +37,8 @@ class ProductController extends Controller
             $query->latest();
         }
 
-        $products = $query->get();
-
-        return response()->json([
-            'message' => 'Data produk berhasil diambil',
-            'data' => $products
-        ]);
+        $products = Product::with(['category', 'variants'])->latest()->get();
+        return response()->json(['data' => $products]);  
     }
     // MENGAMBIL DETAIL 1 PRODUK
     public function show($slug)

@@ -35,6 +35,8 @@ Route::get('/my-orders', [\App\Http\Controllers\API\OrderController::class, 'myO
 Route::post('/promo/validate', [\App\Http\Controllers\API\PromoController::class, 'validatePromo']);
 Route::get('/articles', [\App\Http\Controllers\API\ArticleController::class, 'index']);
 Route::get('/articles/{slug}', [\App\Http\Controllers\API\ArticleController::class, 'show']);
+Route::get('/team', [\App\Http\Controllers\API\TeamMemberController::class, 'index']);
+Route::get('/company-profile', [\App\Http\Controllers\API\CompanyProfileController::class, 'show']);
 // ============================================================
 // RUTE PROTEKSI (Harus login dengan Token Sanctum)
 // ============================================================
@@ -72,7 +74,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/promos', [\App\Http\Controllers\API\PromoController::class, 'index']);
     Route::post('/admin/promos', [\App\Http\Controllers\API\PromoController::class, 'store']);
     Route::delete('/admin/promos/{id}', [\App\Http\Controllers\API\PromoController::class, 'destroy']);
-  
+    Route::post('/admin/team', [\App\Http\Controllers\API\TeamMemberController::class, 'store']);
+    Route::post('/admin/team/{id}', [\App\Http\Controllers\API\TeamMemberController::class, 'update']);
+    Route::delete('/admin/team/{id}', [\App\Http\Controllers\API\TeamMemberController::class, 'destroy']);
+    Route::post('/admin/company-profile', [\App\Http\Controllers\API\CompanyProfileController::class, 'update']);
+    Route::post('/admin/inventory/scan', [\App\Http\Controllers\API\InventoryController::class, 'scan']);   
     // Cek profil user yang sedang login
     Route::get('/user', function (Request $request) {
         return response()->json($request->user());
