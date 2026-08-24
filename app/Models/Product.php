@@ -8,6 +8,7 @@ class Product extends Model
 {
     protected $guarded = ['id'];
 
+
     // Setiap produk berelasi dengan satu kategori
     public function category()
     {
@@ -16,5 +17,10 @@ class Product extends Model
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(ProductItem::class);
     }
 }

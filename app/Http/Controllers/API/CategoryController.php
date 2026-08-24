@@ -23,11 +23,13 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
+            'code' => 'nullable|string|max:20',
         ]);
 
         $category = Category::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
+            'code' => $request->code,
             'is_active' => true,
         ]);
 
@@ -43,11 +45,13 @@ class CategoryController extends Controller
         $request->validate([
             // Validasi unique mengecualikan ID yang sedang diedit
             'name' => 'required|string|max:255|unique:categories,name,' . $id,
+            'code' => 'nullable|string|max:20',
         ]);
 
         $category->update([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
+            'code' => $request->code,
         ]);
 
         return response()->json([
