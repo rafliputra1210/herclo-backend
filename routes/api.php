@@ -33,6 +33,7 @@ Route::get('/settings', [\App\Http\Controllers\API\SettingController::class, 'in
 Route::post('/midtrans-callback', [\App\Http\Controllers\API\OrderController::class, 'callback']);
 Route::get('/my-orders', [\App\Http\Controllers\API\OrderController::class, 'myOrders']);
 Route::post('/promo/validate', [\App\Http\Controllers\API\PromoController::class, 'validatePromo']);
+Route::get('/promos', [\App\Http\Controllers\API\PromoController::class, 'activePromos']);
 Route::get('/articles', [\App\Http\Controllers\API\ArticleController::class, 'index']);
 Route::get('/articles/{slug}', [\App\Http\Controllers\API\ArticleController::class, 'show']);
 Route::get('/team', [\App\Http\Controllers\API\TeamMemberController::class, 'index']);

@@ -60,4 +60,10 @@ class PromoController extends Controller
             'promo_code' => $promo->code
         ]);
     }
+
+    // --- UNTUK PUBLIK: Mengambil promo aktif untuk dipasang di Checkout ---
+    public function activePromos()
+    {
+        return response()->json(['data' => Promo::where('is_active', true)->latest()->get()]);
+    }
 }

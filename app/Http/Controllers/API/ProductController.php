@@ -66,6 +66,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
             'size' => 'required|string',
+            'color' => 'required|string',
         ]);
 
         // 2. Proses Upload Gambar
@@ -84,6 +85,7 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
             'image_path' => $imagePath,
+            'color' => $request->color,
         ]);
 
         // 4. Proses Pembuatan Hangtag/Barcode (Product Items)
