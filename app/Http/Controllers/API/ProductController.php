@@ -15,7 +15,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         // Memulai query ke tabel Product beserta relasi kategorinya
-        $query = \App\Models\Product::with('category');
+        $query = Product::with(['category', 'items', 'variants']);
 
         // 1. Fitur Pencarian Nama
         if ($request->has('search') && $request->search != '') {
@@ -33,13 +33,15 @@ class ProductController extends Controller
                 $query->orderBy('price', 'asc'); // Harga Termurah
             } elseif ($request->sort === 'price_desc') {
                 $query->orderBy('price', 'desc'); // Harga Termahal
+            } else {
+                $query->latest();
             }
         } else {
             // Default: Produk terbaru
             $query->latest();
         }
 
-        $products = Product::with(['category', 'items', 'variants'])->latest()->get();
+        $products = $query->get();
         return response()->json(['data' => $products]);  
     }
     // MENGAMBIL DETAIL 1 PRODUK
@@ -141,6 +143,7 @@ class ProductController extends Controller
             'stock_quantity' => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'color' => 'nullable|string',
         ]);
 
         $imagePath = $product->image_path; // Simpan path lama sebagai default
@@ -163,6 +166,7 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
             'image_path' => $imagePath,
+            'color' => $request->has('color') ? $request->color : $product->color,
         ]);
 
         return response()->json(['message' => 'Produk berhasil diperbarui', 'data' => $product]);
